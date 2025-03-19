@@ -1,6 +1,6 @@
 # 李宏毅机器学习 2023 作业
 
-作业文件合集来源于原仓库 [Fafa-DL/Lhy_Machine_Learning](https://github.com/Fafa-DL/Lhy_Machine_Learning)，数据文件较大没有上传，可于原仓库作者维护的公众号【啥都会一点的研究生】获取
+作业文件合集来源于原仓库 [Fafa-DL/Lhy_Machine_Learning](https://github.com/Fafa-DL/Lhy_Machine_Learning)。数据文件较大没有上传，可于 Kaggle 获取
 
 ## 作业 1
 
@@ -11,7 +11,7 @@
 - 引入 Adam 优化器
 - 引入 L2 正则化
 - 加宽加深网络结构
-- 选择皮尔曼相关系数超过 0.8 的变量作为输入
+- 选择皮尔逊相关系数超过 0.8 的变量作为输入
 - 玄学调参
 
 ## 作业 2
@@ -37,3 +37,34 @@
 - **调大 concat**，这里可以精调一下
   - 77 的话，30 轮左右跑到 0.828，交上去能过 boss
   - 91 的话，10 轮左右跑到 0.830
+
+## 作业 3
+
+这是我做到现在最难的一个作业，strong 和 boss 一度调到我破防......但是，我仍然做到了（自豪）
+
+我把过 4 条 line 的代码放进了四个文件，做出的修改分别是：
+
+- simple：示例代码跑多两轮
+- medium：用个 `torch.RandomChoice` 随便拼凑几个数据增强函数，然后再跑多几轮
+- strong：
+  - 模型：提示说用预定义模型，但实操后发现很难训好，最多也就到 0.75 了。所以用示例模型，全连接层调深调宽，再加上 dropout=0.5
+  - 数据增强：`transforms.TrivialAugmentWide` 就足够
+  - 训练：需要训很多轮，我用了 `lr_scheduler.ReduceLROnPlateau` 来帮助模型更好收敛
+  - 其他：用了 smooth-labeling 来增强泛化性能，具体是否有用不明确
+- boss：
+  - 数据处理：图片尺寸改 256*256，期望模型能提取出更多信息来
+  - 模型：因为图片尺寸变大一倍，模型最前面加一层，全连接层加 BN 增强泛化性
+  - 训练：K 折交叉验证
+  - 预测：K 个模型共同决策，经过我的测试，模型输出取平均的效果通常好过投票的效果；为了进一步提高最终效果，还实现了 K 个模型中取出 valid_acc 最好的 top_k 个模型来避免差的模型影响总体效果
+  - 其他：我尝试实现了 Test Time Augmentation，但几乎没有效果
+
+## 作业 4
+
+这是我做到现在最简单的一个作业，跟作业三简直天上地下，两个小时就调完了。由于 boss 设置得太宽松，以至于榜上三分之二的人都能够通过。因此，在这个作业中，你不需要实现什么 Conformer，也不需要实现什么 Self-Attention Pooling 等等的奇技淫巧，**你只要嗯调示例代码就能够通过 boss**。有空再去看看 2022 的版本罢。
+
+具体的修改如下：
+
+- simple：跑示例代码
+- medium：改 `nn.Sigmoid()` 为 `nn.ReLU()`
+- strong：`d_model` 调大，`dim_feedforward` 调大，Transformer 改 4 层，上个 dropout=0.1，就够了
+- boss：训练步数增大一倍
